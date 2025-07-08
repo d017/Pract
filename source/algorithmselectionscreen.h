@@ -15,8 +15,10 @@ public:
 
 signals:
     void CodeSelected(int index, QString code);
+
     void BotSelected(int index);
 
+    void AlgorithmDenied(int index);
 private:
     int index;
 
@@ -28,6 +30,8 @@ private slots:
     void onBotButtonPressed();
 
     void onAlgorithmSubmitted();
+
+    void onAlgorithmDenied();
 };
 
 #endif // ALGORITHMSELECTIONSCREEN_H
