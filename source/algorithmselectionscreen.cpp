@@ -12,13 +12,13 @@ AlgorithmSelectionScreen::AlgorithmSelectionScreen(int playerIndex, QVector<QStr
     index = playerIndex;
     codes = availableCodes;
 
-    QString text = "Player " + QString::number(index) + "\'s code:";
+    QString text = "Код игрока " + QString::number(index + 1) + ":";
     QLabel* enterLabel = new QLabel(text);
     enterLabel->setAlignment(Qt::AlignCenter);
     inputEdit = new QLineEdit("");
-    QPushButton* submitButton = new QPushButton("Next");
-    QPushButton* noAlgorithmButton = new QPushButton("No algorithm");
-    QPushButton* botButton = new QPushButton("Bot");
+    QPushButton* submitButton = new QPushButton("Далее");
+    QPushButton* noAlgorithmButton = new QPushButton("Без алгоритма");
+    QPushButton* botButton = new QPushButton("Бот");
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(enterLabel);
@@ -43,7 +43,7 @@ void AlgorithmSelectionScreen::onAlgorithmSubmitted() {
     if (codes.contains(inputEdit->text()))
         emit CodeSelected(index, inputEdit->text());
     else {
-        QMessageBox::warning(this, "Error", "No such code");
+        QMessageBox::warning(this, "Ошибка", "Нет такого кода");
         inputEdit->setText("");
     }
 }
