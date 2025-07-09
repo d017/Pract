@@ -42,18 +42,19 @@ void MainWindow::setupUI()
 
 void MainWindow::createPages()
 {
+    //Cоздаем начальные окна
     initialPage = new Initial(this);
-    page1 = new Page1(this);
+    playerCount = new PlayerCount(this);
     infoTablePage = new InfoTable(this);
-    page2 = new Page2(this);
-    page3 = new Page3(this);
+    bidTable = new BidTable(this);
+    gameEnd = new GameEnd(this);
 
     // Добавляем страницы в QStackedWidget (initial будет индекс 0)
     stackedWidget->addWidget(initialPage);
-    stackedWidget->addWidget(page1);
+    stackedWidget->addWidget(playerCount);
     stackedWidget->addWidget(infoTablePage);
-    stackedWidget->addWidget(page2);
-    stackedWidget->addWidget(page3);
+    stackedWidget->addWidget(bidTable);
+    stackedWidget->addWidget(gameEnd);
 
     // Начинаем с начального окна
     showInitialPage();
@@ -63,22 +64,22 @@ void MainWindow::createPages()
     connect(initialPage, &Initial::loadClicked, this, &MainWindow::handleLoad);
 
     // Подключаем сигналы остальных страниц
-    connect(page1, &Page1::nextClicked, this, &MainWindow::showInfoTable);
+    connect(playerCount, &PlayerCount::nextClicked, this, &MainWindow::showInfoTable);
 
     connect(infoTablePage, &InfoTable::backClicked, this, &MainWindow::showCountPage);
     connect(infoTablePage, &InfoTable::nextClicked, this, &MainWindow::showBidInfoPage);
 
-    connect(page2, &Page2::backClicked, this, &MainWindow::showInfoTable);
-    connect(page2, &Page2::nextClicked, this, &MainWindow::showGameEndingPage);
+    connect(bidTable, &BidTable::backClicked, this, &MainWindow::showInfoTable);
+    connect(bidTable, &BidTable::nextClicked, this, &MainWindow::showGameEndingPage);
 
-    connect(page3, &Page3::playAgainClicked, this, &MainWindow::showInitialPage);
-    connect(page3, &Page3::exitClicked, this, &MainWindow::handleExit);
+    connect(gameEnd, &GameEnd::playAgainClicked, this, &MainWindow::showInitialPage);
+    connect(gameEnd, &GameEnd::exitClicked, this, &MainWindow::handleExit);
 }
 
 void MainWindow::handleStart()
 {
-    // Переходим на Page1 для начала новой игры
-    stackedWidget->setCurrentIndex(1); // Page1 теперь индекс 1
+    // Переходим на PlayerCount для начала новой игры
+    stackedWidget->setCurrentIndex(1); // PlayerCount теперь индекс 1
 }
 
 void MainWindow::handleLoad(const QString& option)
@@ -88,20 +89,10 @@ void MainWindow::handleLoad(const QString& option)
     // Здесь можно добавить логику загрузки в зависимости от выбранной опции
     // Например, загрузить данные из файла или сохранения
 
-    // Для демонстрации просто переходим на Page1
-    stackedWidget->setCurrentIndex(1); // Page1
+    // Для демонстрации просто переходим на PlayerCount
+    stackedWidget->setCurrentIndex(1); // PlayerCount
 }
 
-
-
-void MainWindow::handleNextFromPage2()
-{
-    // Устанавливаем случайного победителя для демонстрации
-
-
-    // Переключаемся на третью страницу
-    showGameEndingPage();
-}
 
 void MainWindow::handlePlayAgain()
 {
@@ -115,17 +106,6 @@ void MainWindow::handleExit()
     QApplication::quit();
 }
 
-void MainWindow::handleBackFromPage2()
-{
-    // Переключаемся на первую страницу
-    showCountPage();
-}
-/*
-void MainWindow::handleNextFromPage2()
-{
-    // Переключаемся на третью страницу
-    stackedWidget->setCurrentIndex(2);
-}*/
 
 
 
@@ -212,7 +192,7 @@ void MainWindow::showBidInfoPage()
     }
 
     // Передаем массив данных на вторую страницу
-    page2->setBidData(bidArray);
+    bidTable->setBidData(bidArray);
 
     // Переключаемся на вторую страницу
 
@@ -226,7 +206,7 @@ void MainWindow::showGameEndingPage()
     QStringList possibleWinners = {"Игрок 1", "Игрок 2", "Компьютер", "Команда А", "Команда Б"};
     QString winner = possibleWinners[QRandomGenerator::global()->bounded(possibleWinners.size())];
 
-    page3->setWinner(winner);
+    gameEnd->setWinner(winner);
 
     stackedWidget->setCurrentIndex(4);
 }

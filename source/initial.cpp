@@ -28,7 +28,7 @@ void Initial::setupUI()
         "}"
         );
 
-    // Главный заголовок в стиле пикселизированных игр
+
     titleLabel = new QLabel("START NEW GAME", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet(
@@ -44,6 +44,8 @@ void Initial::setupUI()
         "}"
         );
 
+
+
     // Подзаголовок
     subtitleLabel = new QLabel("Выберите действие для начала", this);
     subtitleLabel->setAlignment(Qt::AlignCenter);
@@ -55,9 +57,13 @@ void Initial::setupUI()
         "}"
         );
 
+
+
     // Создаем кнопки
     startButton = new QPushButton("НАЧАТЬ", this);
     loadButton = new QPushButton("ЗАГРУЗИТЬ", this);
+
+
 
     // Стилизация кнопок
     QString buttonStyle =
@@ -82,8 +88,12 @@ void Initial::setupUI()
         "}";
 
 
+
+
     startButton->setStyleSheet(buttonStyle);
     loadButton->setStyleSheet(buttonStyle);
+
+
 
     loadComboBox = new QComboBox(this);
     loadComboBox->setStyleSheet(
@@ -141,6 +151,7 @@ void Initial::setupUI()
     connect(startButton, &QPushButton::clicked, this, &Initial::handleStartButton);
     connect(loadButton, &QPushButton::clicked, this, &Initial::handleLoadButton);
 }
+
 
 void Initial::setupLoadOptions()
 {

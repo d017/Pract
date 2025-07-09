@@ -1,49 +1,45 @@
-#include "infotable.h"
+#include "bidTable.h"
 
-InfoTable::InfoTable(QWidget *parent)
+BidTable::BidTable(QWidget *parent)
     : QWidget(parent)
 {
     setupUI();
 }
 
-InfoTable::~InfoTable()
+BidTable::~BidTable()
 {
 }
 
-void InfoTable::setupUI()
+void BidTable::setupUI()
 {
     mainLayout = new QVBoxLayout(this);
 
     // Заголовок страницы
-    titleLabel = new QLabel("Player Information Table", this);
+    titleLabel = new QLabel("Page 2 - Bid Information Array", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("QLabel { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 20px; }");
 
-
-
-
-    playerTable = new QTableWidget(0, 6, this);  // 0 строк, 6 столбцов
+    // Создаем таблицу с 6 столбцами
+    bidTablewidget = new QTableWidget(0, 6, this);
 
     // Устанавливаем заголовки столбцов
     QStringList headers;
-    headers << "Player ID" << "Common Factories" << "Auto Factories" << "Balance" << "Raw" << "Production";
-    playerTable->setHorizontalHeaderLabels(headers);
+    headers << "ID" << "Raw Sell Count" << "Raw Sell Cost" << "Product Buy Count" << "Product Buy Cost" << "Occasion";
+    bidTablewidget->setHorizontalHeaderLabels(headers);
 
     // Настраиваем размеры столбцов
-    playerTable->horizontalHeader()->setStretchLastSection(true);
-    playerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    bidTablewidget->horizontalHeader()->setStretchLastSection(true);
+    bidTablewidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     // Запрещаем редактирование
-    playerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    bidTablewidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Настраиваем выделение
-    playerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    playerTable->setSelectionMode(QAbstractItemView::SingleSelection);
-
-
+    bidTablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    bidTablewidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Стилизация таблицы
-    playerTable->setStyleSheet(
+    bidTablewidget->setStyleSheet(
         "QTableWidget {"
         "    gridline-color: #d0d0d0;"
         "    background-color: #f9f9f9;"
@@ -65,10 +61,8 @@ void InfoTable::setupUI()
         "}"
         );
 
-
-
     // Включаем чередование цветов строк
-    playerTable->setAlternatingRowColors(true);
+    bidTablewidget->setAlternatingRowColors(true);
 
     // Создаем кнопки навигации
     backButton = new QPushButton("BACK", this);
@@ -104,74 +98,91 @@ void InfoTable::setupUI()
 
     // Добавляем элементы в главный layout
     mainLayout->addWidget(titleLabel);
-    mainLayout->addWidget(playerTable);
+    mainLayout->addWidget(bidTablewidget);
     mainLayout->addLayout(buttonLayout);
 
     setLayout(mainLayout);
 
     // Подключаем сигналы кнопок
-    connect(backButton, &QPushButton::clicked, this, &InfoTable::backClicked);
-    connect(nextButton, &QPushButton::clicked, this, &InfoTable::nextClicked);
+    connect(backButton, &QPushButton::clicked, this, &BidTable::backClicked);
+    connect(nextButton, &QPushButton::clicked, this, &BidTable::nextClicked);
 }
 
-void InfoTable::setPlayerData(infoTable& playerData)
+void BidTable::setBidData(const std::vector<bid>& bidDataArray)
 {
-    currentPlayerData = playerData;
+    currentBidArray = bidDataArray;
     updateDisplay();
 }
 
-void InfoTable::updateDisplay()
+void BidTable::updateDisplay()
 {
     // Очищаем таблицу
-    playerTable->setRowCount(0);
+    bidTablewidget->setRowCount(0);
 
     // Если массив пуст, отображаем пустую таблицу
-    if (currentPlayerData.empty()) {
-        titleLabel->setText("Player Information Table (Empty)");
+    if (currentBidArray.empty()) {
+        titleLabel->setText("Page 2 - Bid Information Array (Empty)");
         return;
     }
 
     // Обновляем заголовок с количеством элементов
-    titleLabel->setText(QString("Player Information Table (%1 players)").arg(currentPlayerData.size()));
+    titleLabel->setText(QString("Page 2 - Bid Information Array (%1 items)").arg(currentBidArray.size()));
 
     // Устанавливаем количество строк равное размеру массива
-    playerTable->setRowCount(currentPlayerData.size());
+    bidTablewidget->setRowCount(currentBidArray.size());
 
     // Заполняем таблицу данными
-    for (size_t i = 0; i < currentPlayerData.size(); ++i) {
-        const playerInfo& player = currentPlayerData[i];
+    for (size_t i = 0; i < currentBidArray.size(); ++i) {
+        const bid& currentBid = currentBidArray[i];
 
-        // Столбец 0: Player ID (номер игрока)
-        playerTable->setItem(i, 0, new QTableWidgetItem(QString("Player %1").arg(i + 1)));
+        // Столбец 0: ID (номер строки)
+        bidTablewidget->setItem(i, 0, new QTableWidgetItem(QString::number(i + 1)));
 
-        // Столбец 1: Common Factories
-        playerTable->setItem(i, 1, new QTableWidgetItem(QString::number(player.commonFactories)));
+        // Столбец 1: Raw Sell Count
+        bidTablewidget->setItem(i, 1, new QTableWidgetItem(QString::number(currentBid.rawSellBid.count)));
 
-        // Столбец 2: Auto Factories
-        playerTable->setItem(i, 2, new QTableWidgetItem(QString::number(player.autoFactories)));
+        // Столбец 2: Raw Sell Cost
+        bidTablewidget->setItem(i, 2, new QTableWidgetItem(QString::number(currentBid.rawSellBid.cost)));
 
-        // Столбец 3: Balance
-        playerTable->setItem(i, 3, new QTableWidgetItem(QString::number(player.balance)));
+        // Столбец 3: Product Buy Count
+        bidTablewidget->setItem(i, 3, new QTableWidgetItem(QString::number(currentBid.prodBuyBid.count)));
 
-        // Столбец 4: Raw
-        playerTable->setItem(i, 4, new QTableWidgetItem(QString::number(player.raw)));
+        // Столбец 4: Product Buy Cost
+        bidTablewidget->setItem(i, 4, new QTableWidgetItem(QString::number(currentBid.prodBuyBid.cost)));
 
-        // Столбец 5: Production
-        playerTable->setItem(i, 5, new QTableWidgetItem(QString::number(player.production)));
+        // Столбец 5: Occasion
+        bidTablewidget->setItem(i, 5, new QTableWidgetItem(occasionToString(currentBid.occasion)));
 
         // Выравниваем текст в ячейках
         for (int col = 0; col < 6; ++col) {
-            QTableWidgetItem *item = playerTable->item(i, col);
+            QTableWidgetItem *item = bidTablewidget->item(i, col);
             if (item) {
                 if (col == 0) {
-                    // Player ID - центрировано и жирным шрифтом
                     item->setTextAlignment(Qt::AlignCenter);
                     item->setFont(QFont("Arial", 10, QFont::Bold));
+                } else if (col == 5) {
+                    item->setTextAlignment(Qt::AlignCenter);
+                    item->setFont(QFont("Arial", 10, QFont::Normal));
                 } else {
-                    // Числовые значения - центрировано
                     item->setTextAlignment(Qt::AlignCenter);
                 }
             }
         }
+    }
+}
+
+QString BidTable::occasionToString(happyCaseOccasion occasion)
+{
+    switch(occasion) {
+    case happyCaseOccasion::BIRTHDAY:
+        return "Birthday";
+    case happyCaseOccasion::ANNIVERSARY:
+        return "Anniversary";
+    case happyCaseOccasion::HOLIDAY:
+        return "Holiday";
+    case happyCaseOccasion::OTHER:
+        return "Other";
+    default:
+        return "Unknown";
     }
 }

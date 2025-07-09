@@ -9,9 +9,9 @@
 #include <QWidget>
 
 // Включаем отдельные классы страниц
-#include "page1.h"
-#include "page2.h"
-#include "page3.h"
+#include "playerCount.h"
+#include "BidTable.h"
+#include "gameEnd.h"
 #include "initial.h"
 #include "infotable.h"
 #include "structures.h"
@@ -32,10 +32,6 @@ private slots:
     void showInfoTable();
     void showBidInfoPage();
     void showGameEndingPage();
-
-
-    void handleBackFromPage2();    // Новый слот для кнопки Back
-    void handleNextFromPage2();    // Новый слот для кнопки Next
 
     void handlePlayAgain();     // Новый слот для кнопки "Играть снова"
     void handleExit();
@@ -60,10 +56,10 @@ private:
 
     // Используем отдельные классы страниц
 
-    Page1 *page1;
-    Page2 *page2;
+    PlayerCount *playerCount;
+    BidTable *bidTable;
     InfoTable *infoTablePage;
-    Page3 *page3;
+    GameEnd *gameEnd;
     Initial *initialPage;
 };
 
