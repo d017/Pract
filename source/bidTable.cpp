@@ -1,4 +1,5 @@
 #include "bidTable.h"
+#include <QDebug>
 
 BidTable::BidTable(QWidget *parent)
     : QWidget(parent)
@@ -15,7 +16,7 @@ void BidTable::setupUI()
     mainLayout = new QVBoxLayout(this);
 
     // Заголовок страницы
-    titleLabel = new QLabel("Page 2 - Bid Information Array", this);
+    titleLabel = new QLabel("Информация о ставках", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("QLabel { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 20px; }");
 
@@ -24,7 +25,7 @@ void BidTable::setupUI()
 
     // Устанавливаем заголовки столбцов
     QStringList headers;
-    headers << "ID" << "Raw Sell Count" << "Raw Sell Cost" << "Product Buy Count" << "Product Buy Cost" << "Occasion";
+    headers << "Месяц" << "Колич. прод. ЕС" << "Цена прод. ЕС" << "Колич. пок. ГП" << "Цена пок. ГП" << "Счастливый случай";
     bidTablewidget->setHorizontalHeaderLabels(headers);
 
     // Настраиваем размеры столбцов
@@ -65,8 +66,8 @@ void BidTable::setupUI()
     bidTablewidget->setAlternatingRowColors(true);
 
     // Создаем кнопки навигации
-    backButton = new QPushButton("BACK", this);
-    nextButton = new QPushButton("NEXT", this);
+    // backButton = new QPushButton("BACK", this);
+    // nextButton = new QPushButton("NEXT", this);
 
     // Стилизация кнопок
     QString buttonStyle =
@@ -87,14 +88,14 @@ void BidTable::setupUI()
         "    background-color: #3e8e41;"
         "}";
 
-    backButton->setStyleSheet(buttonStyle);
-    nextButton->setStyleSheet(buttonStyle);
+    // backButton->setStyleSheet(buttonStyle);
+    // nextButton->setStyleSheet(buttonStyle);
 
     // Создаем layout для кнопок
     buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(backButton);
-    buttonLayout->addStretch(); // Добавляем растягивающий элемент между кнопками
-    buttonLayout->addWidget(nextButton);
+    // buttonLayout->addWidget(backButton);
+    // buttonLayout->addStretch(); // Добавляем растягивающий элемент между кнопками
+    // buttonLayout->addWidget(nextButton);
 
     // Добавляем элементы в главный layout
     mainLayout->addWidget(titleLabel);
@@ -104,11 +105,16 @@ void BidTable::setupUI()
     setLayout(mainLayout);
 
     // Подключаем сигналы кнопок
-    connect(backButton, &QPushButton::clicked, this, &BidTable::backClicked);
-    connect(nextButton, &QPushButton::clicked, this, &BidTable::nextClicked);
+    // connect(backButton, &QPushButton::clicked, this, &BidTable::backClicked);
+    // connect(nextButton, &QPushButton::clicked, this, &BidTable::nextClicked);
 }
 
-void BidTable::setBidData(const std::vector<bid>& bidDataArray)
+void BidTable::resizeEvent(QResizeEvent* ev) {
+    QWidget::resizeEvent(ev);
+    updateDisplay();
+}
+
+void BidTable::setBidData(const QVector<bid>& bidDataArray)
 {
     currentBidArray = bidDataArray;
     updateDisplay();
@@ -121,19 +127,19 @@ void BidTable::updateDisplay()
 
     // Если массив пуст, отображаем пустую таблицу
     if (currentBidArray.empty()) {
-        titleLabel->setText("Page 2 - Bid Information Array (Empty)");
+        titleLabel->setText("Информация о ставках");
         return;
     }
 
     // Обновляем заголовок с количеством элементов
-    titleLabel->setText(QString("Page 2 - Bid Information Array (%1 items)").arg(currentBidArray.size()));
+    titleLabel->setText(QString("Информация о ставках (%1 м.)").arg(currentBidArray.size()));
 
     // Устанавливаем количество строк равное размеру массива
     bidTablewidget->setRowCount(currentBidArray.size());
 
     // Заполняем таблицу данными
-    for (size_t i = 0; i < currentBidArray.size(); ++i) {
-        const bid& currentBid = currentBidArray[i];
+    for (int i = 0; i < currentBidArray.size(); ++i) {
+        const bid currentBid = currentBidArray[i];
 
         // Столбец 0: ID (номер строки)
         bidTablewidget->setItem(i, 0, new QTableWidgetItem(QString::number(i + 1)));
@@ -169,6 +175,14 @@ void BidTable::updateDisplay()
             }
         }
     }
+    int w = this->width();
+    int h = w / 8;
+
+    for (int col = 0; col < 5; ++col) {
+        bidTablewidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Fixed);
+        bidTablewidget->setColumnWidth(col, h);
+    }
+    bidTablewidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
 }
 
 QString BidTable::occasionToString(happyCaseOccasion occasion)
@@ -177,14 +191,15 @@ QString BidTable::occasionToString(happyCaseOccasion occasion)
     case 0:
         return "-";
     case 1:
-        return "A";
+        return "Взорвалась фабрика игрока " + QString::number(occasion.target + 1);
     case 2:
-        return "B";
+        return "Игрок " + QString::number(occasion.target + 1) + " получил обычную фабрику";
     case 3:
-        return "C";
+        return "Игрок " + QString::number(occasion.target + 1) + " выиграл в лотерею";
     case 4:
-        return "День рождения игрока " + QString::number(occasion.target);
+        return "День рождения игрока " + QString::number(occasion.target + 1);
     default:
+        qDebug() << occasion.index;
         return "Unknown";
     }
 }

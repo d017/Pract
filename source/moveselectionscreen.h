@@ -11,7 +11,8 @@ class MoveSelectionScreen : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MoveSelectionScreen(int, playerProperty, QVector<infoTable>, bid, std::optional<playerMove>, QWidget *parent = nullptr);
+    explicit MoveSelectionScreen(int, playerProperty, QVector<infoTable>, bid, std::optional<playerMove>,
+                                 QVector<bid>, QWidget *parent = nullptr);
     ~MoveSelectionScreen();
 signals:
     void moveSelected(int, playerMove);
@@ -25,6 +26,7 @@ private:
     int index;
     std::optional<playerMove> recommendedMove;
     QVector<infoTable> curInfoTables;
+    QVector<bid> currBids;
     // bid currentBankBid;
     playerProperty currProperty;
 

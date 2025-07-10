@@ -104,24 +104,32 @@ QPair<QVector<request>,QVector<request>> Bank::getMonthResults(QVector<playerMov
         properties[i].prod+=fin;
     }
     for(int i=0;i<playerMoves.size();i++){
+        auto loansLeft = properties[i].moneyLoans;
         for(auto loan=properties[i].moneyLoans.begin();loan!=properties[i].moneyLoans.end();loan++){
             (*loan).monthsLeft--;
             if((*loan).monthsLeft<1){
                 properties[i].balance-=(*loan).sum*1.1;
-                properties[i].moneyLoans.erase(loan);
+                //properties[i].moneyLoans.erase(loan);
             }
+            else
+                loansLeft.append(*loan);
         }
+        properties[i].moneyLoans = loansLeft;
     }
     for(int i=0;i<playerMoves.size();i++){
+        auto factoryLoansLeft = properties[i].factoryLoans;
         for(auto loan=properties[i].factoryLoans.begin();loan!=properties[i].factoryLoans.end();loan++){
             (*loan).monthsLeft--;
             if((*loan).monthsLeft<1){
                 properties[i].autoFactories++;
                 properties[i].commonFactories--;
                 properties[i].balance-=(*loan).sum;
-                properties[i].factoryLoans.erase(loan);
+                //properties[i].factoryLoans.erase(loan);
             }
+            else
+                factoryLoansLeft.append(*loan);
         }
+        properties[i].factoryLoans = factoryLoansLeft;
         if(playerMoves[i].factoriesToAuto>0){
             int numb=std::min(playerMoves[i].factoriesToAuto,properties[i].commonFactories-properties[i].factoryLoans.size());
             numb=std::min(numb,properties[i].balance/300);
@@ -283,7 +291,7 @@ bid Bank::makeBids() {
                 randomNum = rand() % properties.size();
             }
             properties[randomNum].commonFactories++;
-            currentBid.happyCase = { 1,randomNum };
+            currentBid.happyCase = { 2,randomNum };
         }
         else if (randomNum == 3) {
             randomNum = rand() % properties.size();
@@ -301,6 +309,8 @@ bid Bank::makeBids() {
             currentBid.happyCase = { 4,randomNum };
         }
     }
+    else
+        currentBid.happyCase = {0, 0};
 
     return currentBid;
 }

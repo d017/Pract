@@ -67,7 +67,7 @@ void MainWindow::createAlgorithmWindow(int index) {
 }
 
 void MainWindow::onPlayerCountSelected(int count) {
-    int GAME_LENGTH = 10; // months
+    int GAME_LENGTH = 36; // months
 
     bank = new Bank(count, GAME_LENGTH);
     manager = new playerManager;
@@ -110,7 +110,8 @@ void MainWindow::startGame() {
 void MainWindow::startMonth() {
     qDebug() << "month started";
     currentBid = bank->makeBids();
-
+    currBids.append(currentBid);
+    qDebug() << currentBid.happyCase.index << currentBid.happyCase.target;
     getPlayerMove(0);
 }
 
@@ -156,7 +157,8 @@ void MainWindow::createMoveWindow(int playerIndex, playerProperty prop,
                                                               prop,
                                                               infoTables,
                                                               bankBid,
-                                                              recommendedMove
+                                                              recommendedMove,
+                                                              currBids
                                                               );
     stackedWidget->addWidget(moveScreen);
     stackedWidget->setCurrentIndex(1);
@@ -198,6 +200,8 @@ void MainWindow::endMonth() {
 
 void MainWindow::endGame() {
     qDebug() << "Points";
+
+    currBids.clear();
     QVector<int> scores = bank->calculatePoints();
     QVector<int> winners;
     int max_score = -1;

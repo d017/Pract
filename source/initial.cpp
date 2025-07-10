@@ -39,7 +39,7 @@ void Initial::setupUI()
         "    color: #111111;"
         "    background-color: transparent;"
         "    padding: 40px 20px 20px 20px;"
-        "    text-shadow: 2px 2px 0px #003d14;"
+        //"    text-shadow: 2px 2px 0px #003d14;"
         "    letter-spacing: 3px;"
         "}"
         );

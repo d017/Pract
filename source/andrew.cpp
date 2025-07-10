@@ -21,7 +21,8 @@ class Andrew : public playerAlgorithm
             {
                 sum += it[i - 1].prodBought[j].cost;
             }
-            m_average += sum / it[i - 1].prodBought.size();
+            if (it[i - 1].prodBought.size() != 0)
+                m_average += sum / it[i - 1].prodBought.size();
             sum = 0;
         }
         m_average = m_average / 3;

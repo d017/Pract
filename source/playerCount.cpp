@@ -30,7 +30,7 @@ void PlayerCount::setupUI()
         "    color: #00ff41;"
         "    background-color: transparent;"
         "    padding: 30px 20px 10px 20px;"
-        "    text-shadow: 2px 2px 0px #003d14;"
+        //"    text-shadow: 2px 2px 0px #003d14;"
         "    letter-spacing: 2px;"
         "}"
         );
@@ -109,7 +109,7 @@ void PlayerCount::setupUI()
         "    border: 2px solid #00ff41;"
         "    padding: 15px;"
         "    min-height: 30px;"
-        "    text-shadow: 1px 1px 0px #003d14;"
+        //"    text-shadow: 1px 1px 0px #003d14;"
         "}"
         );
 
@@ -140,7 +140,7 @@ void PlayerCount::updatePlayerValueLabel(int value)
         "    border: 2px solid #00ff41;"
         "    padding: 15px;"
         "    min-height: 30px;"
-        "    text-shadow: 1px 1px 0px #003d14;"
+        //"    text-shadow: 1px 1px 0px #003d14;"
         "}"
         );
 }

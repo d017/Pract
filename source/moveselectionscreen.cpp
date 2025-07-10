@@ -1,5 +1,6 @@
 #include "moveselectionscreen.h"
 #include "infotable.h"
+#include "bidTable.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -12,6 +13,7 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
                                          QVector<infoTable> infoTables,
                                          bid bankBid,
                                          std::optional<playerMove> recommendedMove,
+                                         QVector<bid> bids,
                                          QWidget *parent)
     : QWidget{parent}
 {
@@ -19,6 +21,7 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     this->recommendedMove = recommendedMove;
     this->currProperty = property;
     this->curInfoTables = infoTables;
+    this->currBids = bids;
 
 
     rawBuyCount = new QSpinBox();
@@ -189,6 +192,12 @@ void MoveSelectionScreen::onShowInfoTablesButtonPressed() {
 
 void MoveSelectionScreen::onShowBidButtonPressed() {
     // show bankBid
+    BidTable* bidScreen = new BidTable(nullptr);
+    bidScreen->setBidData(currBids);
+    bidScreen->setWindowFlags(Qt::Window);
+    bidScreen->setWindowModality(Qt::WindowModal);
+    bidScreen->resize(1600, 600);
+    bidScreen->show();
 }
 
 void MoveSelectionScreen::setRecommendedMove() {

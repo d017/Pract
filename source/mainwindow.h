@@ -36,6 +36,7 @@ private:
     playerManager* manager;
     QVector<playerMove> playerMoves;
     bid currentBid;
+    QVector<bid> currBids;
 
     QSet<int> deadPlayers;
 

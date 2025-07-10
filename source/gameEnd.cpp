@@ -20,12 +20,12 @@ void GameEnd::setupUI()
     titleLabel->setStyleSheet(
         "QLabel {"
         "    font-family: 'Courier New', monospace;"
-        "    font-size: 32px;"
+        "    font-size: 40px;"
         "    font-weight: bold;"
         "    color: #111111;"
         "    background-color: transparent;"
         "    padding: 40px 20px 20px 20px;"
-        "    text-shadow: 2px 2px 0px #003d14;"
+        //"    text-shadow: 2px 2px 0px #003d14;"
         "    letter-spacing: 3px;"
         "}"
         );
@@ -37,12 +37,12 @@ void GameEnd::setupUI()
     winnerLabel->setStyleSheet(
         "QLabel {"
         "    font-family: 'Courier New', monospace;"
-        "    font-size: 24px;"
+        "    font-size: 48px;"
         "    font-weight: bold;"
         "    color: #00ff41;"
         "    background-color: transparent;"
         "    padding: 40px 20px 20px 20px;"
-        "    text-shadow: 2px 2px 0px #003d14;"
+        //"    text-shadow: 2px 2px 0px #003d14;"
         "    letter-spacing: 3px;"
         "}"
         );
@@ -56,7 +56,7 @@ void GameEnd::setupUI()
         "QPushButton {"
         "    background-color: #4CAF50;"
         "    color: white;"
-        "    font-size: 14px;"
+        "    font-size: 26px;"
         "    font-weight: bold;"
         "    padding: 10px 20px;"
         "    border: none;"
@@ -103,7 +103,9 @@ void GameEnd::setupUI()
 
 void GameEnd::setWinner(QVector<int> winners)
 {
-    if (winners.size() == 1)
+    if (winners.size() == 0)
+        currentWinner = " никто ";
+    else if (winners.size() == 1)
         currentWinner = "Игрок " + QString::number(winners[0] + 1);
     else {
         currentWinner = "Игроки " + QString::number(winners[0] + 1);

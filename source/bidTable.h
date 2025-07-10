@@ -8,7 +8,7 @@
 #include <QTableWidget>
 #include <QPushButton>
 #include <QHeaderView>
-#include <vector>
+#include <QResizeEvent>
 #include "structures.h"
 
 class BidTable : public QWidget
@@ -19,15 +19,16 @@ public:
     explicit BidTable(QWidget *parent = nullptr);
     ~BidTable();
 
-    void setBidData(const std::vector<bid>& bidDataArray);
+    void setBidData(const QVector<bid>& bidDataArray);
 
 signals:
-    void nextClicked();    // Сигнал для кнопки Next
-    void backClicked();    // Сигнал для кнопки Back
+    // void nextClicked();    // Сигнал для кнопки Next
+    // void backClicked();    // Сигнал для кнопки Back
 
 private:
     void setupUI();
     void updateDisplay();
+    void resizeEvent(QResizeEvent*) override;
     QString occasionToString(happyCaseOccasion occasion);
 
     QVBoxLayout *mainLayout;
@@ -37,7 +38,7 @@ private:
     QPushButton *backButton;
     QPushButton *nextButton;
 
-    std::vector<bid> currentBidArray;
+    QVector<bid> currentBidArray;
 };
 
 #endif // bidTable_H
