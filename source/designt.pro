@@ -23,6 +23,7 @@ SOURCES += \
     playermanager.cpp \
     polina.cpp \
     prokhor.cpp \
+    rulesscreen.cpp \
     vitaliy.cpp
 
 HEADERS += \
@@ -38,6 +39,7 @@ HEADERS += \
     playeralgorithm.h \
     playermanager.h \
     polina.h \
+    rulesscreen.h \
     structures.h
 
 # Default rules for deployment.

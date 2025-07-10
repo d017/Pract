@@ -18,6 +18,8 @@ public:
 
 private slots:
     void onGameInitialized();
+    void onRulesCalled();
+    void onReInit();
     void onPlayerCountSelected(int);
 
     void onAlgorithmSelected(int, QString);
@@ -29,7 +31,11 @@ private slots:
     void onPlayAgain();
 
     void onExit();
+
+
 private:
+    void center();
+
     QStackedWidget *stackedWidget;
     QWidget* currentWindow;
     Bank* bank;

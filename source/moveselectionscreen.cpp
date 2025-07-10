@@ -137,13 +137,22 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     connect(recommendedMoveButton, &QPushButton::clicked, this, &MoveSelectionScreen::setRecommendedMove);
     layout->addWidget(recommendedMoveButton, 12, 0, 1, 4);
 
-    QPushButton* bidButton = new QPushButton("Посмотреть ставки банка");
-    connect(bidButton, &QPushButton::clicked, this, &MoveSelectionScreen::onShowBidButtonPressed);
-    layout->addWidget(bidButton, 13, 0, 1, 4);
+    // new
 
-    QPushButton* tablesButton = new QPushButton("Посмотреть таблицы информации");
-    connect(tablesButton, &QPushButton::clicked, this, &MoveSelectionScreen::onShowInfoTablesButtonPressed);
-    layout->addWidget(tablesButton, 14, 0, 1, 4);
+
+
+    // QPushButton* bidButton = new QPushButton("Посмотреть ставки банка");
+    // connect(bidButton, &QPushButton::clicked, this, &MoveSelectionScreen::onShowBidButtonPressed);
+    // layout->addWidget(bidButton, 13, 0, 1, 4);
+    InfoTable* infoScreen = new InfoTable(nullptr, curInfoTables);
+    layout->addWidget(infoScreen, 13, 0, 4, 8);
+
+    // QPushButton* tablesButton = new QPushButton("Посмотреть таблицы информации");
+    // connect(tablesButton, &QPushButton::clicked, this, &MoveSelectionScreen::onShowInfoTablesButtonPressed);
+    // layout->addWidget(tablesButton, 14, 0, 1, 4);
+    BidTable* bidScreen = new BidTable(nullptr);
+    bidScreen->setBidData(currBids);
+    layout->addWidget(bidScreen, 17, 0, 4, 8);
 
 
     if (recommendedMove.has_value() && checkValidMove(recommendedMove).isEmpty())
@@ -153,6 +162,7 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
         setRecommendedMove();
     }
     setLayout(layout);
+    resize(2200, 1200);
 }
 
 

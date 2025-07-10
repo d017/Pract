@@ -20,15 +20,17 @@ public:
 
 signals:
     void startClicked();                    // Сигнал для кнопки "Начать"
-    void loadClicked(const QString& option); // Сигнал для кнопки "Загрузить" с выбранной опцией
+    void loadClicked(QString filename); // Сигнал для кнопки "Загрузить" с выбранной опцией
+    void rulesCalled();
 
 private slots:
     void handleStartButton();
     void handleLoadButton();
+    void handleRulesButton();
 
 private:
     void setupUI();
-    void setupLoadOptions();
+    //void setupLoadOptions();
 
     QVBoxLayout *mainLayout;
     QHBoxLayout *buttonLayout;
@@ -36,9 +38,10 @@ private:
     QLabel *subtitleLabel;
     QPushButton *startButton;
     QPushButton *loadButton;
-    QComboBox *loadComboBox;
+    //QComboBox *loadComboBox;
+    QPushButton* rulesButton;
 
-    QStringList loadOptions;
+    //QStringList loadOptions;
 
 
 };

@@ -1,12 +1,15 @@
 #include "mainwindow.h"
 
 #include "initial.h"
+#include "rulesscreen.h"
 #include "playerCount.h"
 #include "algorithmselectionscreen.h"
 #include "moveselectionscreen.h"
 #include "gameEnd.h"
 
 #include <QDebug>
+#include <QGuiApplication>
+#include <QScreen>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -15,6 +18,15 @@ MainWindow::MainWindow(QWidget *parent)
     currentWindow = nullptr;
 
     prepareGame();
+}
+
+void MainWindow::center() {
+
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->availableGeometry();
+    int x = (screenGeometry.width() - this->width()) / 2;
+    int y = (screenGeometry.height() - this->height()) / 2;
+    this->move(x, y);
 }
 
 void MainWindow::prepareGame() {
@@ -29,12 +41,39 @@ void MainWindow::prepareGame() {
     stackedWidget = new QStackedWidget;
     Initial* initScreen = new Initial;
     connect(initScreen, &Initial::startClicked, this, &MainWindow::onGameInitialized);
+    connect(initScreen, &Initial::rulesCalled, this, &MainWindow::onRulesCalled);
     currentWindow = initScreen;
     stackedWidget->addWidget(initScreen);
     stackedWidget->setCurrentIndex(0);
 
     setCentralWidget(stackedWidget);
     resize(800, 800);
+}
+
+void MainWindow::onRulesCalled() {
+    RulesScreen* rulesScreen = new RulesScreen;
+    rulesScreen->resize(2000, 1200);
+    resize(2000, 1200);
+    center();
+    connect(rulesScreen, &RulesScreen::back, this, &MainWindow::onReInit);
+    stackedWidget->addWidget(rulesScreen);
+    stackedWidget->setCurrentIndex(1);
+    stackedWidget->removeWidget(currentWindow);
+    delete currentWindow;
+    currentWindow = rulesScreen;
+}
+
+void MainWindow::onReInit() {
+    resize(800, 800);
+    center();
+    Initial* initScreen = new Initial;
+    connect(initScreen, &Initial::startClicked, this, &MainWindow::onGameInitialized);
+    connect(initScreen, &Initial::rulesCalled, this, &MainWindow::onRulesCalled);
+    stackedWidget->addWidget(initScreen);
+    stackedWidget->setCurrentIndex(1);
+    stackedWidget->removeWidget(currentWindow);
+    delete currentWindow;
+    currentWindow = initScreen;
 }
 
 void MainWindow::onGameInitialized() {
@@ -64,10 +103,11 @@ void MainWindow::createAlgorithmWindow(int index) {
             this, &MainWindow::onBotSelected);
     connect(algorithmSelectionScreen, &AlgorithmSelectionScreen::AlgorithmDenied,
             this, &MainWindow::onAlgorithmDenied);
+
 }
 
 void MainWindow::onPlayerCountSelected(int count) {
-    int GAME_LENGTH = 36; // months
+    int GAME_LENGTH = 3; // months
 
     bank = new Bank(count, GAME_LENGTH);
     manager = new playerManager;
@@ -160,6 +200,8 @@ void MainWindow::createMoveWindow(int playerIndex, playerProperty prop,
                                                               recommendedMove,
                                                               currBids
                                                               );
+    resize(2200, 1200);
+    center();
     stackedWidget->addWidget(moveScreen);
     stackedWidget->setCurrentIndex(1);
     stackedWidget->removeWidget(currentWindow);
@@ -200,7 +242,8 @@ void MainWindow::endMonth() {
 
 void MainWindow::endGame() {
     qDebug() << "Points";
-
+    resize(800, 800);
+    center();
     currBids.clear();
     QVector<int> scores = bank->calculatePoints();
     QVector<int> winners;
