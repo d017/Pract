@@ -36,6 +36,8 @@ private slots:
 
 
 private:
+    int baseWidth;
+    int baseHeight;
     void center();
 
     QStackedWidget *stackedWidget;

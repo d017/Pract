@@ -10,6 +10,9 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QStringList>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -21,6 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     currentWindow = nullptr;
 
+
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->availableGeometry();
+    baseWidth = screenGeometry.width();
+    baseHeight = screenGeometry.height();
+
+    qDebug() << baseWidth << ' ' << baseHeight;
     prepareGame();
 }
 
@@ -53,13 +63,13 @@ void MainWindow::prepareGame() {
     stackedWidget->setCurrentIndex(0);
 
     setCentralWidget(stackedWidget);
-    resize(800, 800);
+    resize(baseWidth * 2 / 5, baseHeight / 2);
+    center();
 }
 
 void MainWindow::onRulesCalled() {
     RulesScreen* rulesScreen = new RulesScreen;
-    rulesScreen->resize(2000, 1200);
-    resize(2000, 1200);
+    resize(baseWidth * 4 / 5, baseHeight * 4 / 5);
     center();
     connect(rulesScreen, &RulesScreen::back, this, &MainWindow::onReInit);
     stackedWidget->addWidget(rulesScreen);
@@ -70,8 +80,7 @@ void MainWindow::onRulesCalled() {
 }
 
 void MainWindow::onReInit() {
-    resize(800, 800);
-    center();
+
     Initial* initScreen = new Initial;
     connect(initScreen, &Initial::startClicked, this, &MainWindow::onGameInitialized);
     connect(initScreen, &Initial::rulesCalled, this, &MainWindow::onRulesCalled);
@@ -82,6 +91,9 @@ void MainWindow::onReInit() {
     stackedWidget->removeWidget(currentWindow);
     delete currentWindow;
     currentWindow = initScreen;
+
+    resize(baseWidth * 2 / 5, baseHeight / 2);
+    center();
 }
 
 void MainWindow::onGameInitialized() {
@@ -208,8 +220,6 @@ void MainWindow::createMoveWindow(int playerIndex, playerProperty prop,
                                                               recommendedMove,
                                                               currBids
                                                               );
-    resize(2200, 1200);
-    center();
     stackedWidget->addWidget(moveScreen);
     stackedWidget->setCurrentIndex(1);
     stackedWidget->removeWidget(currentWindow);
@@ -218,7 +228,67 @@ void MainWindow::createMoveWindow(int playerIndex, playerProperty prop,
 
     connect(moveScreen, &MoveSelectionScreen::moveSelected, this, &MainWindow::onPlayerMoveSubmitted);
     connect(moveScreen, &MoveSelectionScreen::gameSaved, this, &MainWindow::onGameSaved);
+
+    resize(baseWidth * 7 / 8, baseHeight * 4 / 5);
+    center();
 }
+
+QString playerInfoToString(const playerInfo& info) {
+    return QString("%1,%2,%3,%4,%5")
+    .arg(info.commonFactories)
+        .arg(info.autoFactories)
+        .arg(info.balance)
+        .arg(info.raw)
+        .arg(info.prod);
+}
+
+// Helper function to convert a request to string
+QString requestToString(const request& req) {
+    return QString("%1,%2").arg(req.count).arg(req.cost);
+}
+
+// Convert an infoTable to a single string line
+QString infoTableToString(const infoTable& table) {
+    QStringList parts;
+
+    // Serialize playersTable
+    QStringList players;
+    for (const auto& p : table.playersTable) {
+        players << playerInfoToString(p);
+    }
+    parts << "P:" + players.join(";");
+
+    // Serialize rawSold
+    QStringList rawSold;
+    for (const auto& r : table.rawSold) {
+        rawSold << requestToString(r);
+    }
+    parts << "R:" + rawSold.join(";");
+
+    // Serialize prodBought
+    QStringList prodBought;
+    for (const auto& p : table.prodBought) {
+        prodBought << requestToString(p);
+    }
+    parts << "PB:" + prodBought.join(";");
+
+    return parts.join("|");
+}
+
+
+
+QString happyCaseToString(const happyCaseOccasion& hc) {
+    return QString("%1,%2").arg(hc.index).arg(hc.target);
+}
+
+// Convert bid to string (one line)
+QString bidToString(const bid& b) {
+    return QString("RawSell:%1|ProdBuy:%2|HappyCase:%3")
+    .arg(requestToString(b.rawSellBid))
+        .arg(requestToString(b.prodBuyBid))
+        .arg(happyCaseToString(b.happyCase));
+}
+
 
 void MainWindow::onGameSaved(QString filename) {
     qDebug() << "Game saved: " << filename;
@@ -270,51 +340,107 @@ void MainWindow::onGameSaved(QString filename) {
     }
 
     out << bank->getInfoTable().size() << '\n';
-    for (const infoTable& table: bank->getInfoTable()) {
-        // Write player info
-        for (const playerInfo &player : table.playersTable) {
-            out << "PLAYER_INFO;"
-                << player.commonFactories << ";"
-                << player.autoFactories << ";"
-                << player.balance << ";"
-                << player.raw << ";"
-                << player.prod << "\n";
-        }
-
-        // Write rawSold requests
-        for (const request &req : table.rawSold) {
-            out << "RAW_SOLD;" << req.count << ";" << req.cost << "\n";
-        }
-
-        // Write prodBought requests
-        for (const request &req : table.prodBought) {
-            out << "PROD_BOUGHT;" << req.count << ";" << req.cost << "\n";
-        }
-
-        out << "TABLE_END\n";  // Mark end of one infoTable
+    for (infoTable& table: bank->getInfoTable()) {
+        out << infoTableToString(table) << "\n";
     }
 
-    for (const bid b : currBids) {
-        // Write rawSellBid
-        out << "RAW_SELL;"
-            << b.rawSellBid.count << ";"
-            << b.rawSellBid.cost << "\n";
-
-        // Write prodBuyBid
-        out << "PROD_BUY;"
-            << b.prodBuyBid.count << ";"
-            << b.prodBuyBid.cost << "\n";
-
-        // Write happyCaseOccasion if present
-        out << "HAPPY_CASE;"
-            << b.happyCase.index << ";"
-            << b.happyCase.target << "\n";
-
-        out << "BID_END\n";  // End of this bid
+    for (bid& b : currBids) {
+        out << bidToString(b) << "\n";
     }
+
 
     file.close();
 }
+
+
+playerInfo stringToPlayerInfo(const QString& str) {
+    playerInfo info;
+    QStringList parts = str.split(",");
+    if (parts.size() == 5) {
+        info.commonFactories = parts[0].toInt();
+        info.autoFactories = parts[1].toInt();
+        info.balance = parts[2].toInt();
+        info.raw = parts[3].toInt();
+        info.prod = parts[4].toInt();
+    }
+    return info;
+}
+
+
+request stringToRequest(const QString& str) {
+    request req;
+    QStringList parts = str.split(",");
+    if (parts.size() == 2) {
+        req.count = parts[0].toInt();
+        req.cost = parts[1].toInt();
+    }
+    return req;
+}
+
+infoTable stringToInfoTable(const QString& line) {
+    infoTable table;
+
+    QStringList entries = line.split("|");
+    for (const QString& entry : entries) {
+        if (entry.startsWith("P:")) {
+            QString data = entry.mid(2);
+            QStringList players = data.split(";");
+            for (const QString& p : players) {
+                if (!p.isEmpty())
+                    table.playersTable.append(stringToPlayerInfo(p));
+            }
+        } else if (entry.startsWith("R:")) {
+            QString data = entry.mid(2);
+            QStringList requests = data.split(";");
+            for (const QString& r : requests) {
+                if (!r.isEmpty())
+                    table.rawSold.append(stringToRequest(r));
+            }
+        } else if (entry.startsWith("PB:")) {
+            QString data = entry.mid(3);
+            QStringList requests = data.split(";");
+            for (const QString& p : requests) {
+                if (!p.isEmpty())
+                    table.prodBought.append(stringToRequest(p));
+            }
+        }
+    }
+
+    return table;
+}
+
+
+happyCaseOccasion stringToHappyCase(const QString& str) {
+    happyCaseOccasion hc;
+    QStringList parts = str.split(",");
+    if (parts.size() == 2) {
+        hc.index = parts[0].toInt();
+        hc.target = parts[1].toInt();
+    }
+    return hc;
+}
+
+
+bid stringToBid(const QString& line) {
+    bid b;
+
+    QStringList entries = line.split("|");
+    for (const QString& entry : entries) {
+        if (entry.startsWith("RawSell:")) {
+            b.rawSellBid = stringToRequest(entry.mid(8));
+        } else if (entry.startsWith("ProdBuy:")) {
+            b.prodBuyBid = stringToRequest(entry.mid(8));
+        } else if (entry.startsWith("HappyCase:")) {
+            b.happyCase = stringToHappyCase(entry.mid(10));
+        }
+    }
+
+    return b;
+}
+
+
+
+
 
 void MainWindow::onGameLoad(QString filename) {
     qDebug() << "laoding";
@@ -322,13 +448,13 @@ void MainWindow::onGameLoad(QString filename) {
         QFile file(filename);
 
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            return; // Error code
+            return;
         }
 
         QTextStream in(&file);
-        QString firstLine = in.readLine(); // Read the first line
+        QString firstLine = in.readLine();
 
-        file.close();
+
         bool ok;
         int playerCount = firstLine.toInt(&ok);
         if (!ok)
@@ -403,10 +529,35 @@ void MainWindow::onGameLoad(QString filename) {
         }
         qDebug() << "ok";
 
+        QString bcline = in.readLine();
+        ok = true;
+        int monthsCount = bcline.toInt(&ok);
+        if (!ok)
+            throw "Incorrect";
 
-
-
+        qDebug() << monthsCount;
+        QVector<infoTable> loadedInfoTables;
+        for (int i = 0; i < monthsCount; i++) {
+            QString line = in.readLine();
+            if (!line.isEmpty()) {
+                loadedInfoTables.append(stringToInfoTable(line));
+            }
+        }
         qDebug() << "ok";
+
+
+        QVector<bid> loadedBids;
+
+        for (int i = 0; i < monthsCount; i++) {
+            QString line = in.readLine();
+            loadedBids.append(stringToBid(line));
+        }
+        qDebug() << "ok final";
+        file.close();
+        int GAME_LENGTH = 36;
+        bank = new Bank(playerCount, GAME_LENGTH, players, loadedInfoTables);
+        this->currBids = loadedBids;
+        startMonth();
     }
     catch (exception e) {
         QMessageBox::warning(nullptr, "Ошибка", "Неверный формат файла");
@@ -422,11 +573,6 @@ void MainWindow::onPlayerMoveSubmitted(int playerIndex, playerMove move) {
 }
 
 void MainWindow::clean() {
-    // if (bank != nullptr)
-    //     delete bank;
-    // if (manager != nullptr)
-    //     delete manager;
-    // currBids.clear();
     playerMoves.clear();
     deadPlayers.clear();
 }
@@ -454,8 +600,6 @@ void MainWindow::endMonth() {
 
 void MainWindow::endGame() {
     qDebug() << "Points";
-    resize(800, 800);
-    center();
     currBids.clear();
     deadPlayers.clear();
     QVector<int> scores = bank->calculatePoints();
@@ -481,6 +625,9 @@ void MainWindow::endGame() {
 
     connect(endScreen, &GameEnd::playAgainClicked, this, &MainWindow::onPlayAgain);
     connect(endScreen, &GameEnd::exitClicked, this, &MainWindow::onExit);
+
+    resize(baseWidth * 2 / 5, baseHeight / 2);
+    center();
 }
 
 void MainWindow::onPlayAgain() {

@@ -20,6 +20,7 @@ private:
     };
 public:
     Bank(int numberOfPlayers, int gameLength);
+    Bank(int numberOfPlayers, int gameLenght, QVector<playerProperty>, QVector<infoTable>);
 
     int getPlayersCount();
 

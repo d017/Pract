@@ -14,6 +14,13 @@ Bank::Bank(int numberOfPlayers, int gameMonths){
     this->gameLength=gameMonths;
 }
 
+Bank::Bank(int numberOfPlayers, int gameLenght, QVector<playerProperty> props, QVector<infoTable> lInfoTables) {
+    currentFirst = lInfoTables.size() % numberOfPlayers;
+    properties = props;
+    this->infoTables = lInfoTables;
+    this->gameLength=gameLenght;
+}
+
 int Bank::getPlayersCount() {
     return properties.size();
 }
