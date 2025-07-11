@@ -55,6 +55,16 @@ void playerManager:: addPlayerWithoutAlgorithm()
     players.push_back(newPlayerEnt);                //дадаём у вектар гульца
 }
 
+QString playerManager::getPlayerCode(int index) {
+    return players[index].algorithm->getCode();
+}
+
+bool playerManager::hasAlgorithm(int index) {
+    if (players[index].algorithm == nullptr)
+        return false;
+    return true;
+}
+
 std::optional<playerMove> playerManager::getAlgorithmMove(int playerInteger, playerProperty playerProp, QVector<infoTable> vecInfoTable, bid genBid)
 {
     playerAlgorithm* currPlayerAlg = players[playerInteger].algorithm;   //знаходзім алгарытм гульца пад патрэбным нумарам

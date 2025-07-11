@@ -26,6 +26,8 @@ private slots:
     void onBotSelected(int);
     void onAlgorithmDenied(int);
 
+    void onGameSaved(QString);
+    void onGameLoad(QString);
     void onPlayerMoveSubmitted(int, playerMove);
 
     void onPlayAgain();
@@ -43,6 +45,7 @@ private:
     QVector<playerMove> playerMoves;
     bid currentBid;
     QVector<bid> currBids;
+    void clean();
 
     QSet<int> deadPlayers;
 

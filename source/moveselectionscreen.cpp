@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QIntValidator>
+#include <QFileDialog>
 
 
 MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
@@ -138,8 +139,53 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     layout->addWidget(recommendedMoveButton, 12, 0, 1, 4);
 
     // new
+    QString labelStyle = "QLabel {"
+    "    text-align: center;"
+    "    font-family: serif;"
+    "    font-size: 24;"
+    "    font-weight: normal;"
+    "    color: #111111;"
+    "    background-color: transparent;"
+    //"    padding: 40px 20px 20px 20px;"
+    //"    text-shadow: 2px 2px 0px #003d14;"
+    "    letter-spacing: 1px;"
+                         "}";
 
+    QString indexText = "Игрок " + QString::number(index + 1);
+    QLabel* indexLabel = new QLabel(indexText);
+    indexLabel->setStyleSheet(labelStyle);
 
+    QString moneyText = "Деньги: " + QString::number(currProperty.balance);
+    QLabel* moneyLabel = new QLabel(moneyText);
+    moneyLabel->setStyleSheet(labelStyle);
+
+    QString rawText = "Единицы сырья: " + QString::number(currProperty.raw);
+    QLabel* rwLabel = new QLabel(rawText);
+    rwLabel->setStyleSheet(labelStyle);
+
+    QString prodText = "Единицы продукции: " + QString::number(currProperty.prod);
+    QLabel* prdLabel = new QLabel(prodText);
+    prdLabel->setStyleSheet(labelStyle);
+
+    QString cfText = "Обычные фабрики: " + QString::number(currProperty.commonFactories);
+    QLabel* cfdLabel = new QLabel(cfText);
+    cfdLabel->setStyleSheet(labelStyle);
+
+    QString afText = "Автоматические фабрики: " + QString::number(currProperty.autoFactories);
+    QLabel* afLabel = new QLabel(afText);
+    afLabel->setStyleSheet(labelStyle);
+
+    layout->addWidget(indexLabel, 0, 4, 1, 4, Qt::AlignCenter);
+    layout->addWidget(moneyLabel, 1, 4, 1, 4, Qt::AlignCenter);
+    layout->addWidget(rwLabel, 2, 4, 1, 4, Qt::AlignCenter);
+    layout->addWidget(prdLabel, 3, 4, 1, 4, Qt::AlignCenter);
+    layout->addWidget(cfdLabel, 4, 4, 1, 4, Qt::AlignCenter);
+    layout->addWidget(afLabel, 5, 4, 1, 4, Qt::AlignCenter);
+
+    QPushButton* saveButton = new QPushButton("Сохранить...");
+
+    connect(saveButton, &QPushButton::clicked, this, &MoveSelectionScreen::onSaveButtonPressed);
+    layout->addWidget(saveButton, 11, 4, 2, 4);
 
     // QPushButton* bidButton = new QPushButton("Посмотреть ставки банка");
     // connect(bidButton, &QPushButton::clicked, this, &MoveSelectionScreen::onShowBidButtonPressed);
@@ -165,6 +211,23 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     resize(2200, 1200);
 }
 
+void MoveSelectionScreen::onSaveButtonPressed() {
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        tr("Save Text File"),
+        QString(),
+        tr("Text Files (*.txt);;All Files (*)")
+        );
+    if (fileName.isEmpty())
+        return;
+
+    if (!fileName.endsWith(".txt", Qt::CaseInsensitive))
+        fileName += ".txt";
+
+    // log
+    emit gameSaved(fileName);
+
+}
 
 void MoveSelectionScreen::onProceedButtonPressed() {
     request rawBuyRequest = {rawBuyCount->value(), rawBuyCost->value()};

@@ -6,6 +6,10 @@
 #include "algorithmselectionscreen.h"
 #include "moveselectionscreen.h"
 #include "gameEnd.h"
+#include <QFile>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QStringList>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -42,6 +46,8 @@ void MainWindow::prepareGame() {
     Initial* initScreen = new Initial;
     connect(initScreen, &Initial::startClicked, this, &MainWindow::onGameInitialized);
     connect(initScreen, &Initial::rulesCalled, this, &MainWindow::onRulesCalled);
+    connect(initScreen, &Initial::loadClicked, this, &MainWindow::onGameLoad);
+
     currentWindow = initScreen;
     stackedWidget->addWidget(initScreen);
     stackedWidget->setCurrentIndex(0);
@@ -69,6 +75,8 @@ void MainWindow::onReInit() {
     Initial* initScreen = new Initial;
     connect(initScreen, &Initial::startClicked, this, &MainWindow::onGameInitialized);
     connect(initScreen, &Initial::rulesCalled, this, &MainWindow::onRulesCalled);
+    connect(initScreen, &Initial::loadClicked, this, &MainWindow::onGameLoad);
+
     stackedWidget->addWidget(initScreen);
     stackedWidget->setCurrentIndex(1);
     stackedWidget->removeWidget(currentWindow);
@@ -209,6 +217,200 @@ void MainWindow::createMoveWindow(int playerIndex, playerProperty prop,
     currentWindow = moveScreen;
 
     connect(moveScreen, &MoveSelectionScreen::moveSelected, this, &MainWindow::onPlayerMoveSubmitted);
+    connect(moveScreen, &MoveSelectionScreen::gameSaved, this, &MainWindow::onGameSaved);
+}
+
+void MainWindow::onGameSaved(QString filename) {
+    qDebug() << "Game saved: " << filename;
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+    QTextStream out(&file);
+
+    out << bank->getPlayersCount() << '\n';
+
+    for (int i = 0; i < bank->getPlayersCount(); i++) {
+        if (!manager->isHuman(i)) {
+            out << "BOT";
+        }
+        else {
+            if (manager->hasAlgorithm(i))
+                out << manager->getPlayerCode(i);
+            else
+                out << "-";
+        }
+        out <<'\n';
+    }
+
+    for (int i = 0; i < bank->getPlayersCount(); i++) {
+        playerProperty player = bank->getProperty(i);
+        QStringList line;
+
+        line << QString::number(player.commonFactories);
+        line << QString::number(player.autoFactories);
+        line << QString::number(player.balance);
+        line << QString::number(player.raw);
+        line << QString::number(player.prod);
+
+        QStringList loans;
+
+        for (int i = 0;i < player.factoryLoans.size(); i++) {
+            loans << QString("F,%1,%2").arg(player.factoryLoans[i].sum).arg(player.factoryLoans[i].monthsLeft);
+        }
+
+
+        for (int i = 0; i < player.moneyLoans.size(); i++) {
+            loans << QString("M,%1,%2").arg(player.moneyLoans[i].sum).arg(player.moneyLoans[i].monthsLeft);
+        }
+
+        line << loans.join(";");
+
+        out << line.join(";") << "\n";
+    }
+
+    out << bank->getInfoTable().size() << '\n';
+    for (const infoTable& table: bank->getInfoTable()) {
+        // Write player info
+        for (const playerInfo &player : table.playersTable) {
+            out << "PLAYER_INFO;"
+                << player.commonFactories << ";"
+                << player.autoFactories << ";"
+                << player.balance << ";"
+                << player.raw << ";"
+                << player.prod << "\n";
+        }
+
+        // Write rawSold requests
+        for (const request &req : table.rawSold) {
+            out << "RAW_SOLD;" << req.count << ";" << req.cost << "\n";
+        }
+
+        // Write prodBought requests
+        for (const request &req : table.prodBought) {
+            out << "PROD_BOUGHT;" << req.count << ";" << req.cost << "\n";
+        }
+
+        out << "TABLE_END\n";  // Mark end of one infoTable
+    }
+
+    for (const bid b : currBids) {
+        // Write rawSellBid
+        out << "RAW_SELL;"
+            << b.rawSellBid.count << ";"
+            << b.rawSellBid.cost << "\n";
+
+        // Write prodBuyBid
+        out << "PROD_BUY;"
+            << b.prodBuyBid.count << ";"
+            << b.prodBuyBid.cost << "\n";
+
+        // Write happyCaseOccasion if present
+        out << "HAPPY_CASE;"
+            << b.happyCase.index << ";"
+            << b.happyCase.target << "\n";
+
+        out << "BID_END\n";  // End of this bid
+    }
+
+    file.close();
+}
+
+void MainWindow::onGameLoad(QString filename) {
+    qDebug() << "laoding";
+    try {
+        QFile file(filename);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return; // Error code
+        }
+
+        QTextStream in(&file);
+        QString firstLine = in.readLine(); // Read the first line
+
+        file.close();
+        bool ok;
+        int playerCount = firstLine.toInt(&ok);
+        if (!ok)
+            throw "Incorrect";
+        clean();
+        manager = new playerManager;
+
+
+        for (int i = 0; i < playerCount; i++) {
+            QString algLine = in.readLine();
+            if (algLine.startsWith("BOT")) {
+                manager->addBot();
+            }
+            else if (algLine.startsWith("-")) {
+                manager->addPlayerWithoutAlgorithm();
+            }
+            else
+                manager->addPlayer(algLine);
+        }
+
+        QVector<playerProperty> players;
+        for (int i = 0; i < playerCount; i++) {
+            QString line = in.readLine();
+
+            QStringList tokens = line.split(';');
+            if (tokens.size() < 6) throw "incorrect";
+
+            playerProperty player;
+            bool ok;
+
+            player.commonFactories = tokens[0].toInt(&ok);
+            if (!ok) throw "incorrect";
+
+            player.autoFactories = tokens[1].toInt(&ok);
+            if (!ok) throw "incorrect";
+
+            player.balance = tokens[2].toInt(&ok);
+            if (!ok) throw "incorrect";
+
+            player.raw = tokens[3].toInt(&ok);
+            if (!ok) throw "incorrect";
+
+            player.prod = tokens[4].toInt(&ok);
+            if (!ok) throw "incorrect";
+
+            QStringList loanTokens = tokens.mid(5);
+
+            for (const QString& loanStr : loanTokens) {
+                QStringList parts = loanStr.split(',');
+                if (parts.size() != 3) continue;
+
+                if (parts[0] == "F") {
+                    factoryPayment fp;
+                    bool ok1, ok2;
+                    fp.sum = parts[1].toInt(&ok1);
+                    fp.monthsLeft = parts[2].toInt(&ok2);
+                    if (ok1 && ok2) {
+                        player.factoryLoans.append(fp);
+                    }
+                } else if (parts[0] == "M") {
+                    moneyLoan ml;
+                    bool ok1, ok2;
+                    ml.sum = parts[1].toInt(&ok1);
+                    ml.monthsLeft = parts[2].toInt(&ok2);
+                    if (ok1 && ok2) {
+                        player.moneyLoans.append(ml);
+                    }
+                }
+            }
+
+            players.append(player);
+        }
+        qDebug() << "ok";
+
+
+
+
+        qDebug() << "ok";
+    }
+    catch (exception e) {
+        QMessageBox::warning(nullptr, "Ошибка", "Неверный формат файла");
+    }
 }
 
 void MainWindow::onPlayerMoveSubmitted(int playerIndex, playerMove move) {
@@ -217,6 +419,16 @@ void MainWindow::onPlayerMoveSubmitted(int playerIndex, playerMove move) {
         endMonth();
     else
         getPlayerMove(playerIndex + 1);
+}
+
+void MainWindow::clean() {
+    // if (bank != nullptr)
+    //     delete bank;
+    // if (manager != nullptr)
+    //     delete manager;
+    // currBids.clear();
+    playerMoves.clear();
+    deadPlayers.clear();
 }
 
 void MainWindow::endMonth() {
@@ -245,6 +457,7 @@ void MainWindow::endGame() {
     resize(800, 800);
     center();
     currBids.clear();
+    deadPlayers.clear();
     QVector<int> scores = bank->calculatePoints();
     QVector<int> winners;
     int max_score = -1;

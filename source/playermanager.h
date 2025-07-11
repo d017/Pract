@@ -33,6 +33,8 @@ public:
     void addPlayer(QString code);
     void addBot();
     void addPlayerWithoutAlgorithm();
+    QString getPlayerCode(int);
+    bool hasAlgorithm(int);
     std::optional<playerMove> getAlgorithmMove(int PlayerInteger, playerProperty playerProp, QVector<infoTable> vecInfoTable, bid genBid); //выклік хода
     bool isHuman(int);
     ~playerManager();

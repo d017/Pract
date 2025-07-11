@@ -16,12 +16,14 @@ public:
     ~MoveSelectionScreen();
 signals:
     void moveSelected(int, playerMove);
+    void gameSaved(QString);
 
 private slots:
     void onProceedButtonPressed();
     void setRecommendedMove();
     void onShowBidButtonPressed();
     void onShowInfoTablesButtonPressed();
+    void onSaveButtonPressed();
 private:
     int index;
     std::optional<playerMove> recommendedMove;
