@@ -1,11 +1,10 @@
 # Дызайн:
-- playerCount(кнопка)
-- moveSelectionScreen
-- algorithmSelectionScreen
-- leaderBoardScreen (я буду рабіць яшчэ, хз што там пакуль)
+Фоны
+- initial
+- rules (нейтральны)
+- moveSelectionScreen (нейтральны)
+- gameEnd
 
-Анімацыі
-- moveSelectionScreen
-- initial (хз што пакуль)
+Анімацыі раскідаць на старонкі
 
 
