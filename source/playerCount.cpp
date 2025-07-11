@@ -16,31 +16,38 @@ void PlayerCount::setupUI()
 
     setStyleSheet(
         "PlayerCount {"
-        "    background-color: #1a1a2e;"
+        " background-color: #f8f9fa;"
+        "background-image: url(back.jpg)"
         "}"
         );
-
-    label = new QLabel("Введите число игроков", this);
-    label->setAlignment(Qt::AlignCenter);
-    label->setStyleSheet(
-        "QLabel {"
-        "    font-family: 'Courier New', monospace;"
-        "    font-size: 28px;"
-        "    font-weight: bold;"
-        "    color: #00ff41;"
-        "    background-color: transparent;"
-        "    padding: 30px 20px 10px 20px;"
-        //"    text-shadow: 2px 2px 0px #003d14;"
-        "    letter-spacing: 2px;"
-        "}"
-        );
-    label->setStyleSheet("QLabel { font-size: 18px; color: blue; }");
-
-
 
 
 
     nextButton = new QPushButton("Далее", this);
+    QString buttonStyle =
+        "QPushButton {"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 30px;"
+        " font-weight: bold;"
+        " color: #000000;"
+        " background-color: transparent;"
+        " border: none;"
+        " padding: 15px 20px;"
+        " text-align: center;"
+        " min-height: 30px;"
+        "}"
+        "QPushButton:hover {"
+        " color: #A1E0FF;"
+        " background-color: #3A5562;"
+        "}"
+        "QPushButton:pressed {"
+        " color: #ffffff;"
+        " background-color: #07A2F0;"
+        "}";
+
+    nextButton->setStyleSheet(buttonStyle);
+
+
 
     slider = new QSlider(Qt::Horizontal, this);
     slider->setMinimum(2);
@@ -101,17 +108,18 @@ void PlayerCount::setupUI()
     PlayerValueLabel->setAlignment(Qt::AlignCenter);
     PlayerValueLabel->setStyleSheet(
         "QLabel {"
-        "    font-family: 'Courier New', monospace;"
-        "    font-size: 40px;"
-        "    font-weight: bold;"
-        "    color: #00ff41;"
-        "    background-color: #0f1419;"
-        "    border: 2px solid #00ff41;"
-        "    padding: 15px;"
-        "    min-height: 30px;"
-        //"    text-shadow: 1px 1px 0px #003d14;"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 40px;"
+        " font-weight: bold;"
+        " color: #000000;"                // Черный текст
+        " background-color: transparent;" // Прозрачный фон, убирает черный квадрат
+        " border: none;"                  // Без рамки
+        " padding: 15px;"
+        " min-height: 30px;"
         "}"
         );
+
+
 
 
 
@@ -119,6 +127,12 @@ void PlayerCount::setupUI()
     layout->addWidget(nextButton);
     layout->addWidget(slider);
     setLayout(layout);
+
+    setStyleSheet(
+        "PlayerCount {"
+        " background-color: #f8f9fa;"
+        "}"
+        );
 
     connect(slider, &QSlider::valueChanged, this, &PlayerCount::updatePlayerValueLabel);
     connect(nextButton, &QPushButton::clicked, [this]() {
@@ -132,15 +146,15 @@ void PlayerCount::updatePlayerValueLabel(int value)
     PlayerValueLabel->setAlignment(Qt::AlignCenter);
     PlayerValueLabel->setStyleSheet(
         "QLabel {"
-        "    font-family: 'Courier New', monospace;"
-        "    font-size: 40px;"
-        "    font-weight: bold;"
-        "    color: #00ff41;"
-        "    background-color: #0f1419;"
-        "    border: 2px solid #00ff41;"
-        "    padding: 15px;"
-        "    min-height: 30px;"
-        //"    text-shadow: 1px 1px 0px #003d14;"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 40px;"
+        " font-weight: bold;"
+        " color: #000000;"                // Черный текст
+        " background-color: transparent;" // Прозрачный фон, убирает черный квадрат
+        " border: none;"                  // Без рамки
+        " padding: 15px;"
+        " min-height: 30px;"
         "}"
         );
+
 }

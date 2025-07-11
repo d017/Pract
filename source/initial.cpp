@@ -18,14 +18,10 @@ Initial::~Initial()
 void Initial::setupUI()
 {
     mainLayout = new QVBoxLayout(this);
+    // QString bgStyle = "background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(':/../../../img/background.png');";
+    // this->setStyleSheet(bgStyle);
 
 
-    setStyleSheet(
-        "Initial {"
-        "    background-color: #1a1a2e;"
-        "    background-image: url('');"
-        "}"
-        );
 
 
     titleLabel = new QLabel("ЭКОНОМИЧЕСКАЯ СТРАТЕГИЯ", this);
@@ -53,6 +49,7 @@ void Initial::setupUI()
         "    font-size: 24px;"
         "    color: #7f8c8d;"
         "    margin-bottom: 30px;"
+        "    background-color: transparent;"
         "}"
         );
 
@@ -168,13 +165,21 @@ void Initial::setupUI()
     //mainLayout->addStretch();
 
     // Устанавливаем фоновый цвет для всей страницы
-    setStyleSheet("Initial { background-color: #f8f9fa; }");
+    //setStyleSheet("Initial { background-color: #f8f9fa; }");
 
     setLayout(mainLayout);
 
     // Подключаем сигналы кнопок
     connect(startButton, &QPushButton::clicked, this, &Initial::handleStartButton);
     connect(loadButton, &QPushButton::clicked, this, &Initial::handleLoadButton);
+    //this->setStyleSheet("background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(':/img/bg.jpg');");
+    //     );)
+    // setStyleSheet(
+    //     //"    background-color: #1a1a2e;"
+    //     //"    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(':/image/bg.jpg');"
+    //     //"    background-color: #000000;"
+    //     "background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(':/img/bg.jpg');"
+    //     );
 }
 
 

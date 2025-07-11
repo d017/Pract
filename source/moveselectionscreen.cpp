@@ -25,38 +25,57 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     this->currBids = bids;
 
 
+    QString SpinBoxStyle = "QSpinBox, QLineEdit {"
+                           " font-family: 'Courier New', monospace;"
+                           " font-size: 20px;"
+                           " color: #000000;"
+                           " background-color: #f8f9fa;"
+                           " border: 2px solid #3498db;"
+                           " border-radius: 5px;"
+                           " padding: 6px 12px;"
+                           " margin: 0 0 12px 0;"
+                           "}";
+
     rawBuyCount = new QSpinBox();
+    rawBuyCount->setStyleSheet(SpinBoxStyle);
     //rawBuyCount->setMaximum(bankBid.rawSellBid.count);
 
     rawBuyCost = new QSpinBox();
+    rawBuyCost->setStyleSheet(SpinBoxStyle);
+
     rawBuyCost->setMaximum(property.balance);
     //rawBuyCost->setMinimum(bankBid.rawSellBid.cost);
     rawBuyCost->setSuffix("$");
 
 
     prodSellCount = new QSpinBox();
+    prodSellCount->setStyleSheet(SpinBoxStyle);
     prodSellCount->setMaximum(property.prod);
 
 
     prodSellCost = new QSpinBox();
+    prodSellCost->setStyleSheet(SpinBoxStyle);
     //prodSellCost->setMaximum(bankBid.prodBuyBid.cost);
     prodSellCost->setSuffix("$");
 
 
     upgradeFactoriesBox = new QSpinBox();
+    upgradeFactoriesBox->setStyleSheet(SpinBoxStyle);
     upgradeFactoriesBox->setMaximum(property.commonFactories);
 
 
     buyFactoriesBox = new QSpinBox();
+    buyFactoriesBox->setStyleSheet(SpinBoxStyle);
     buyFactoriesBox->setMaximum(10 - property.commonFactories - property.autoFactories);
 
 
     toProdCommonBox = new QSpinBox();
+    toProdCommonBox->setStyleSheet(SpinBoxStyle);
     toProdCommonBox->setMaximum(property.commonFactories * 2);
 
     toProdAutoBox = new QSpinBox();
+    toProdAutoBox->setStyleSheet(SpinBoxStyle);
     toProdAutoBox->setMaximum(property.autoFactories * 4);
-
     loanEdit = new QLineEdit();
     loanEdit->setValidator(new QIntValidator(0, INT_MAX, this));
 
@@ -64,11 +83,57 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     QLabel* rawLabel = new QLabel("Покупка сырья");
     QLabel* prodLabel = new QLabel("Продажа продукции");
 
+    rawLabel->setStyleSheet(
+        "QLabel {"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 32px;"
+        " font-weight: bold;"
+        " color: #111111;"
+        " background-color: transparent;"
+        " padding: 20px 0px 10px 0px;"
+        " letter-spacing: 2px;"
+        "}"
+        );
+
+
+    prodLabel->setStyleSheet(
+        "QLabel {"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 32px;"
+        " font-weight: bold;"
+        " color: #111111;"
+        " background-color: transparent;"
+        " padding: 20px 0px 10px 0px;"
+        " letter-spacing: 2px;"
+        "}"
+        );
+
     QLabel* rawCountLabel = new QLabel("Колич.");
     QLabel* rawCostLabel = new QLabel("Цена");
     QLabel* prodCountLabel = new QLabel("Колич.");
     QLabel* prodCostLabel = new QLabel("Цена");
 
+    QString columnLabelStyle =
+        "QLabel {"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 20px;"
+        " font-weight: bold;"
+        " color: #7f8c8d;"
+        " background-color: transparent;"
+        " padding: 10px 0px;"
+        " letter-spacing: 1px;"
+        "}";
+
+    rawCountLabel->setStyleSheet(columnLabelStyle);
+
+
+    rawCostLabel->setStyleSheet(columnLabelStyle);
+
+
+    prodCountLabel->setStyleSheet(columnLabelStyle);
+
+
+    prodCostLabel->setStyleSheet(columnLabelStyle);
 
     layout->addWidget(rawLabel, 0, 0, 1, 2, Qt::AlignCenter);
     layout->addWidget(prodLabel, 0, 2, 1, 2, Qt::AlignCenter);
@@ -86,9 +151,16 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     layout->addWidget(prodSellCost, 2, 3);
 
     QLabel* upgradeFactoriesLabel = new QLabel("Модернизация фабрик (300$/шт.)");
+    upgradeFactoriesLabel->setStyleSheet(columnLabelStyle);
+
     QLabel* buyFactoriesLabel = new QLabel("Покупка фабрик (100$/шт.)");
+    buyFactoriesLabel->setStyleSheet(columnLabelStyle);
+
     QLabel* toProdCommonLabel = new QLabel("Переработка (об. фабр.) (20$/шт.)");
+    toProdCommonLabel->setStyleSheet(columnLabelStyle);
+
     QLabel* toProdAutoLabel = new QLabel("Переработка (авт. фабр.) (8$/шт.)");
+    toProdAutoLabel->setStyleSheet(columnLabelStyle);
 
     layout->addWidget(upgradeFactoriesLabel, 3, 0, 1, 2, Qt::AlignRight);
     layout->addWidget(buyFactoriesLabel, 4, 0, 1, 2, Qt::AlignRight);
@@ -99,7 +171,9 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     layout->addWidget(toProdCommonBox, 5, 2, 1, 2);
     layout->addWidget(toProdAutoBox, 6, 2, 1, 2);
 
+
     QLabel* loanLabel = new QLabel("Кредит ($)");
+    loanLabel->setStyleSheet(columnLabelStyle);
     layout->addWidget(loanLabel, 7, 0, 1, 2, Qt::AlignRight);
     layout->addWidget(loanEdit, 7, 2, 1, 2, Qt::AlignLeft);
 
@@ -131,13 +205,37 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     }
 
     QPushButton* procceedButton = new QPushButton("Сделать ход");
+
+    QString buttonStyle =
+        "QPushButton {"
+        " font-family: 'Courier New', monospace;"
+        " font-size: 30px;"
+        " font-weight: bold;"
+        " color: #000000;"
+        " background-color: transparent;"
+        " border: none;"
+        " padding: 15px 20px;"
+        " text-align: center;"
+        " min-height: 30px;"
+        "}"
+        "QPushButton:hover {"
+        " color: #A1E0FF;"
+        " background-color: #3A5562;"
+        "}"
+        "QPushButton:pressed {"
+        " color: #ffffff;"
+        " background-color: #07A2F0;"
+        "}";
+
+    procceedButton->setStyleSheet(buttonStyle);
     connect(procceedButton, &QPushButton::clicked, this, &MoveSelectionScreen::onProceedButtonPressed);
     layout->addWidget(procceedButton, 11, 0, 1, 4);
+    // Аналогично для других кнопок
 
     QPushButton* recommendedMoveButton = new QPushButton("Рекомендованный ход");
     connect(recommendedMoveButton, &QPushButton::clicked, this, &MoveSelectionScreen::setRecommendedMove);
+    recommendedMoveButton->setStyleSheet(buttonStyle);
     layout->addWidget(recommendedMoveButton, 12, 0, 1, 4);
-
     // new
     QString labelStyle = "QLabel {"
     "    text-align: center;"
@@ -151,29 +249,39 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     "    letter-spacing: 1px;"
                          "}";
 
+    QString infoStyle =         "QLabel {"
+                        " font-family: 'Courier New', monospace;"
+                        " font-size: 32px;"
+                        " font-weight: bold;"
+                        " color: #111111;"
+                        " background-color: transparent;"
+                        " padding: 20px 0px 10px 0px;"
+                        " letter-spacing: 2px;"
+                        "}";
+
     QString indexText = "Игрок " + QString::number(index + 1);
     QLabel* indexLabel = new QLabel(indexText);
-    indexLabel->setStyleSheet(labelStyle);
+    indexLabel->setStyleSheet(infoStyle);
 
     QString moneyText = "Деньги: " + QString::number(currProperty.balance);
     QLabel* moneyLabel = new QLabel(moneyText);
-    moneyLabel->setStyleSheet(labelStyle);
+    moneyLabel->setStyleSheet(infoStyle);
 
     QString rawText = "Единицы сырья: " + QString::number(currProperty.raw);
     QLabel* rwLabel = new QLabel(rawText);
-    rwLabel->setStyleSheet(labelStyle);
+    rwLabel->setStyleSheet(infoStyle);
 
     QString prodText = "Единицы продукции: " + QString::number(currProperty.prod);
     QLabel* prdLabel = new QLabel(prodText);
-    prdLabel->setStyleSheet(labelStyle);
+    prdLabel->setStyleSheet(infoStyle);
 
     QString cfText = "Обычные фабрики: " + QString::number(currProperty.commonFactories);
     QLabel* cfdLabel = new QLabel(cfText);
-    cfdLabel->setStyleSheet(labelStyle);
+    cfdLabel->setStyleSheet(infoStyle);
 
     QString afText = "Автоматические фабрики: " + QString::number(currProperty.autoFactories);
     QLabel* afLabel = new QLabel(afText);
-    afLabel->setStyleSheet(labelStyle);
+    afLabel->setStyleSheet(infoStyle);
 
     layout->addWidget(indexLabel, 0, 4, 1, 4, Qt::AlignCenter);
     layout->addWidget(moneyLabel, 1, 4, 1, 4, Qt::AlignCenter);
@@ -183,6 +291,7 @@ MoveSelectionScreen::MoveSelectionScreen(int playerIndex,
     layout->addWidget(afLabel, 5, 4, 1, 4, Qt::AlignCenter);
 
     QPushButton* saveButton = new QPushButton("Сохранить...");
+    saveButton->setStyleSheet(buttonStyle);
 
     connect(saveButton, &QPushButton::clicked, this, &MoveSelectionScreen::onSaveButtonPressed);
     layout->addWidget(saveButton, 11, 4, 2, 4);
